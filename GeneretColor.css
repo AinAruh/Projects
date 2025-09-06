@@ -1,0 +1,49 @@
+*{
+    margin: 0;
+    padding: 0; 
+     
+}
+
+.neutro{
+    padding-top: 10%;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: #aaa;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    
+    
+
+}
+.tabela{
+    display: flex;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.color1,.color2,.color3,.color4,.color5{
+    background-color: #555;
+    width: 150px;
+    height: 300px;
+    display: flex;
+    margin: 15px;
+    border-radius: 15px;
+    p{
+        color: #000;
+        position: relative;
+        right: -15%;
+        bottom: -90%;
+        transform: translate(50%, 0);
+        font-size: 20px;
+        font-weight: bold;
+        background-color: aliceblue;
+        height: 25px;
+        width: 50px;
+        border-radius: 5px;
+    }
+}
+
+
+
