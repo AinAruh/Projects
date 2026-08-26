@@ -1,0 +1,1 @@
+<Solution><Project Path="Domain/Domain.csproj"/><Project Path="Application/Application.csproj"/><Project Path="Infrastructure/Infrastructure.csproj"/><Project Path="API/API.csproj"/></Solution>
