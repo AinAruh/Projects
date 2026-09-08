@@ -1,0 +1,3 @@
+import { statusLabels, type AssetStatus } from '../../../types/asset';
+const colors: Record<AssetStatus, string> = { Operating: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20', Stopped: 'bg-slate-100 text-slate-700 ring-slate-500/20', Maintenance: 'bg-amber-50 text-amber-700 ring-amber-600/20', Alarm: 'bg-red-50 text-red-700 ring-red-600/20', Offline: 'bg-slate-100 text-slate-500 ring-slate-400/20' };
+export function StatusBadge({ status }: { status: AssetStatus }) { return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${colors[status]}`}><span className="h-1.5 w-1.5 rounded-full bg-current"/>{statusLabels[status]}</span>; }
