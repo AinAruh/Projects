@@ -6,8 +6,17 @@ frontend/.env
 # Backend
 **/bin/
 **/obj/
+backend/API/appsettings.Local.json
 *.user
 # IDE / OS
 .vscode/
 .idea/
 .DS_Store
+
+# Local development output
+**/dev.*.log
+
+.local-postgres/
+.postgres-init-password
+
+.verification/

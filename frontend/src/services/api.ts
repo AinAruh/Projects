@@ -3,10 +3,15 @@ import type { Asset, AssetInput } from '../types/asset';
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: { ...(options?.body ? { 'Content-Type': 'application/json' } : {}), ...options?.headers },
+    });
+  } catch {
+    throw new Error('Não foi possível conectar à API.');
+  }
   if (!response.ok) {
     const problem = await response.json().catch(() => null) as { detail?: string; errors?: Record<string, string[]> } | null;
     const validation = problem?.errors ? Object.values(problem.errors).flat().join(' ') : undefined;

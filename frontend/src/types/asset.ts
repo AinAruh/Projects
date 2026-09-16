@@ -1,5 +1,6 @@
 export const assetTypes = ['Motor', 'Pump', 'Conveyor', 'Tank', 'Robot', 'Machine', 'Other'] as const;
 export const assetStatuses = ['Operating', 'Stopped', 'Maintenance', 'Alarm', 'Offline'] as const;
+export const typeLabels = { Motor: 'Motor', Pump: 'Bomba', Conveyor: 'Esteira', Tank: 'Tanque', Robot: 'Robô', Machine: 'Máquina', Other: 'Outro' } as const;
 export const statusLabels = { Operating: 'Operando', Stopped: 'Parado', Maintenance: 'Manutenção', Alarm: 'Alarme', Offline: 'Offline' } as const;
 
 export type AssetType = (typeof assetTypes)[number];

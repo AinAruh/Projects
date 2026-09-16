@@ -1,1 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk.Web"><PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><RootNamespace>IndustrialAssets.API</RootNamespace></PropertyGroup><ItemGroup><PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0"/><ProjectReference Include="../Application/Application.csproj"/><ProjectReference Include="../Infrastructure/Infrastructure.csproj"/></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>IndustrialAssets.API</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <ProjectReference Include="../Application/Application.csproj" />
+    <ProjectReference Include="../Infrastructure/Infrastructure.csproj" />
+  </ItemGroup>
+  <!-- Pre-existing authentication sources are outside this delivery scope. -->
+  <ItemGroup><Compile Remove="Controllers/AuthController.cs" /></ItemGroup>
+</Project>

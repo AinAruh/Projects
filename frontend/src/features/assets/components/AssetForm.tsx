@@ -1,21 +1,75 @@
 import { useState, type FormEvent } from 'react';
-import { assetStatuses, assetTypes, statusLabels, type Asset, type AssetInput } from '../../../types/asset';
-const typeLabels = { Motor: 'Motor', Pump: 'Bomba', Conveyor: 'Esteira', Tank: 'Tanque', Robot: 'Robô', Machine: 'Máquina', Other: 'Outro' } as const;
-const empty: AssetInput = { code: '', name: '', description: '', type: 'Motor', manufacturer: '', model: '', serialNumber: '', status: 'Operating' };
-interface Props { asset?: Asset; loading: boolean; onSubmit: (data: AssetInput) => Promise<void>; onCancel: () => void }
-export function AssetForm({ asset, loading, onSubmit, onCancel }: Props) {
- const [data, setData] = useState<AssetInput>(asset ? (({ code, name, description, type, manufacturer, model, serialNumber, status }) => ({ code, name, description, type, manufacturer, model, serialNumber, status }))(asset) : empty);
- const update = (key: keyof AssetInput, value: string) => setData(current => ({ ...current, [key]: value }));
- const submit = (event: FormEvent) => { event.preventDefault(); void onSubmit(data); };
- const fieldClass = 'mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/15';
- return <form onSubmit={submit} className="p-6"><div className="grid gap-5 sm:grid-cols-2">
-  <label className="text-sm font-semibold text-slate-700">Código *<input required maxLength={30} className={fieldClass} value={data.code} onChange={e=>update('code',e.target.value)} placeholder="Ex.: MOT-001"/></label>
-  <label className="text-sm font-semibold text-slate-700">Nome *<input required maxLength={120} className={fieldClass} value={data.name} onChange={e=>update('name',e.target.value)} placeholder="Nome do equipamento"/></label>
-  <label className="text-sm font-semibold text-slate-700">Tipo *<select className={fieldClass} value={data.type} onChange={e=>update('type',e.target.value)}>{assetTypes.map(x=><option key={x} value={x}>{typeLabels[x]}</option>)}</select></label>
-  <label className="text-sm font-semibold text-slate-700">Status *<select className={fieldClass} value={data.status} onChange={e=>update('status',e.target.value)}>{assetStatuses.map(x=><option key={x} value={x}>{statusLabels[x]}</option>)}</select></label>
-  <label className="text-sm font-semibold text-slate-700">Fabricante *<input required maxLength={100} className={fieldClass} value={data.manufacturer} onChange={e=>update('manufacturer',e.target.value)} placeholder="Ex.: WEG"/></label>
-  <label className="text-sm font-semibold text-slate-700">Modelo *<input required maxLength={100} className={fieldClass} value={data.model} onChange={e=>update('model',e.target.value)} placeholder="Modelo do equipamento"/></label>
-  <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Número de série *<input required maxLength={100} className={fieldClass} value={data.serialNumber} onChange={e=>update('serialNumber',e.target.value)} placeholder="Número de série único"/></label>
-  <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Descrição<textarea maxLength={500} rows={3} className={fieldClass} value={data.description} onChange={e=>update('description',e.target.value)} placeholder="Informações adicionais sobre o ativo"/></label>
- </div><footer className="mt-7 flex justify-end gap-3 border-t border-slate-100 pt-5"><button type="button" onClick={onCancel} className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</button><button disabled={loading} className="rounded-lg bg-cyan-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-800 disabled:opacity-60">{loading ? 'Salvando...' : asset ? 'Salvar alterações' : 'Cadastrar ativo'}</button></footer></form>;
+import { LoaderCircle } from 'lucide-react';
+import { assetStatuses, assetTypes, statusLabels, typeLabels, type Asset, type AssetInput } from '../../../types/asset';
+
+const empty: AssetInput = {
+  code: '', name: '', description: '', type: 'Motor',
+  manufacturer: '', model: '', serialNumber: '', status: 'Operating',
+};
+const textFields = [
+  { key: 'code', label: 'Código', placeholder: 'Ex.: MOT-001', max: 30, min: 2 },
+  { key: 'name', label: 'Nome', placeholder: 'Nome do equipamento', max: 120, min: 2 },
+  { key: 'manufacturer', label: 'Fabricante', placeholder: 'Ex.: WEG', max: 100, min: 1 },
+  { key: 'model', label: 'Modelo', placeholder: 'Ex.: W22', max: 100, min: 1 },
+  { key: 'serialNumber', label: 'Número de série', placeholder: 'Número de série exclusivo', max: 100, min: 1 },
+] as const;
+
+interface Props {
+  asset?: Asset;
+  loading: boolean;
+  error?: string;
+  onSubmit: (data: AssetInput) => Promise<void>;
+  onCancel: () => void;
+}
+
+function toInput(asset: Asset): AssetInput {
+  const { code, name, description, type, manufacturer, model, serialNumber, status } = asset;
+  return { code, name, description, type, manufacturer, model, serialNumber, status };
+}
+
+export function AssetForm({ asset, loading, error, onSubmit, onCancel }: Props) {
+  const [data, setData] = useState<AssetInput>(() => asset ? toInput(asset) : { ...empty });
+  function update<K extends keyof AssetInput>(key: K, value: AssetInput[K]) {
+    setData(current => ({ ...current, [key]: value }));
+  }
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (loading) return;
+    void onSubmit({
+      ...data, code: data.code.trim(), name: data.name.trim(), description: data.description.trim(),
+      manufacturer: data.manufacturer.trim(), model: data.model.trim(), serialNumber: data.serialNumber.trim(),
+    });
+  }
+
+  return <form onSubmit={submit} className="p-6">
+    <fieldset disabled={loading} className="grid gap-5 sm:grid-cols-2">
+      <legend className="sr-only">Informações do equipamento</legend>
+      {textFields.map(field => <div key={field.key} className={field.key === 'serialNumber' ? 'sm:col-span-2' : ''}>
+        <label htmlFor={`asset-${field.key}`} className="text-sm font-semibold text-slate-700">{field.label} *</label>
+        <input id={`asset-${field.key}`} required minLength={field.min} maxLength={field.max} className="field mt-1.5" value={data[field.key]} onChange={event => update(field.key, event.target.value)} placeholder={field.placeholder}/>
+      </div>)}
+      <div>
+        <label htmlFor="asset-type" className="text-sm font-semibold text-slate-700">Tipo *</label>
+        <select id="asset-type" className="field mt-1.5" value={data.type} onChange={event => update('type', event.target.value as AssetInput['type'])}>
+          {assetTypes.map(type => <option key={type} value={type}>{typeLabels[type]}</option>)}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="asset-status" className="text-sm font-semibold text-slate-700">Status *</label>
+        <select id="asset-status" className="field mt-1.5" value={data.status} onChange={event => update('status', event.target.value as AssetInput['status'])}>
+          {assetStatuses.map(status => <option key={status} value={status}>{statusLabels[status]}</option>)}
+        </select>
+      </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="asset-description" className="text-sm font-semibold text-slate-700">Descrição</label>
+        <textarea id="asset-description" maxLength={500} rows={3} className="field mt-1.5 resize-y" value={data.description} onChange={event => update('description', event.target.value)} placeholder="Informações adicionais sobre o ativo"/>
+        <p className="mt-1 text-right text-xs text-slate-400">{data.description.length}/500 caracteres</p>
+      </div>
+    </fieldset>
+    {error && <p role="alert" className="mt-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+    <footer className="mt-6 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+      <button type="button" disabled={loading} onClick={onCancel} className="secondary-button">Cancelar</button>
+      <button type="submit" disabled={loading} className="primary-button">{loading && <LoaderCircle size={16} className="animate-spin"/>}{loading ? 'Salvando...' : asset ? 'Salvar alterações' : 'Cadastrar ativo'}</button>
+    </footer>
+  </form>;
 }
